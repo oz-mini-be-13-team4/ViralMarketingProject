@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from .constants import BANK_CODES, ACCOUNT_TYPE
 
 
 # 유저 매니저
@@ -38,3 +39,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class Account(models.Model):
+    account_number = models.CharField(max_length=20, unique=True, verbose_name="계좌번호")
+    bank_code = models.CharField(max_length=10, choices=BANK_CODES, verbose_name="은행코드")
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE, verbose_name="계좌종류")
+    balance = models.DecimalField(decimal_places=2, max_digits=18, verbose_name="잔액")
+    user = models.ForeignKey(to_field="email", on_delete=models.CASCADE, verbose_name="이메일")
+
+    class Meta:
+        verbose_name = '계좌'
+        verbose_name_plural = '계좌 목록'
+        db_table = 'accounts'
+        ordering = ['-account_id']
+
+    def __str__(self):
+        return self.account_number
