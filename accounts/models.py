@@ -42,12 +42,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Account(models.Model):
-    account_id = models.AutoField("계좌ID", primary_key=True)
-    account_number = models.CharField("계좌번호", max_length=20, unique=True)
-    bank_code = models.CharField("은행코드", max_length=10, choices=BANK_CODES)
-    account_type = models.CharField("계좌종류", max_length=20, choices=ACCOUNT_TYPE)
-    balance = models.DecimalField("잔액", decimal_places=2, max_digits=18)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    account_number = models.CharField(max_length=20, unique=True, verbose_name="계좌번호")
+    bank_code = models.CharField(max_length=10, choices=BANK_CODES, verbose_name="은행코드")
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE, verbose_name="계좌종류")
+    balance = models.DecimalField(decimal_places=2, max_digits=18, verbose_name="잔액")
+    user = models.ForeignKey(to_field="email", on_delete=models.CASCADE, verbose_name="이메일")
 
     class Meta:
         verbose_name = '계좌'
