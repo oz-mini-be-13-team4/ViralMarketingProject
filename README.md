@@ -1,2 +1,2 @@
 ## - ERD
-![img.png](etc/img.png)
+![img_1.png](etc/img_1.png)
