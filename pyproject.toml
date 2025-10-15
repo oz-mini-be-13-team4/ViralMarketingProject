@@ -11,13 +11,12 @@ django = "^5.2.7"
 djangorestframework = "^3.16.1"
 pymysql = "^1.1.2"
 gunicorn = "^23.0.0"
+psycopg2-binary = "^2.9.11"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.14.0"
 black = "^25.9.0"
 pre-commit = "^4.3.0"
-
-[tool.poetry.group.prod.dependencies]
 
 [tool.black]
 line-length = 120
@@ -25,6 +24,7 @@ line-length = 120
 [tool.ruff]
 line-length = 120
 select = ["E", "F", "I"]  # 예: 에러, 포맷 문제, import 순서 검사
+exclude = ["**/migrations/*"]
 
 [build-system]
 requires = ["poetry-core"]
