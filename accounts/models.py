@@ -34,7 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="전화번호")
     last_login = models.DateTimeField(auto_now=True, verbose_name="마지막 로그인")
     is_staff = models.BooleanField(default=False, verbose_name="관리자 권한")
-    is_active = models.BooleanField(default=True, verbose_name="활성화 상태")
+    is_active = models.BooleanField(default=False, verbose_name="활성화 상태")
 
     objects = CustomUserManager()
 
@@ -56,6 +56,7 @@ class Account(models.Model):
         verbose_name = "계좌"
         verbose_name_plural = "계좌 목록"
         db_table = "accounts"
+        ordering = ["-account_id"]
 
     def __str__(self):
         return self.account_number
