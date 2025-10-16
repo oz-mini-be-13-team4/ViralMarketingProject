@@ -1,4 +1,5 @@
 import os
+from config.settings.base import * #noqa
 
 DEBUG = False
 ALLOWED_HOSTS = ["*"]
