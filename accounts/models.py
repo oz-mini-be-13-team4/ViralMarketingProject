@@ -56,7 +56,6 @@ class Account(models.Model):
         verbose_name = "계좌"
         verbose_name_plural = "계좌 목록"
         db_table = "accounts"
-        ordering = ["-account_id"]
 
     def __str__(self):
         return self.account_number
