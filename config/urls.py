@@ -18,6 +18,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from accounts.views import UserActivateView, UserSignUpView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("signup/", UserSignUpView.as_view(), name="signup"),
+    path("activate/<str:uid64>/<str:token>/", UserActivateView.as_view(), name="activate"),
 ]
