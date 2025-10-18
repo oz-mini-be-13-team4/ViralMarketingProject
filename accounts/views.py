@@ -44,15 +44,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 # =========================
 class LogoutView(APIView):
     def post(self, request):
-            refresh_token = request.COOKIES.get("refresh_token")
-            if refresh_token is None:
-                return Response({"detail":"refresh token 없음"},status=status.HTTP_400_BAD_REQUEST)
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+        refresh_token = request.COOKIES.get("refresh_token")
+        if refresh_token is None:
+            return Response({"detail": "refresh token 없음"}, status=status.HTTP_400_BAD_REQUEST)
+        token = RefreshToken(refresh_token)
+        token.blacklist()
 
-            response = Response({"detail":"로그아웃 완료"},status=status.HTTP_200_OK)
-            response.delete_cookie("refresh_token")
-            return response
+        response = Response({"detail": "로그아웃 완료"}, status=status.HTTP_200_OK)
+        response.delete_cookie("refresh_token")
+        response.delete_cookie("access_token")
+        return response
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
