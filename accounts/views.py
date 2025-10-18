@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import Account, User
 from accounts.serializers import AccountSerializer, UserSerializer, UserSignUpSerializer, CustomTokenObtainPairSerializer
@@ -27,6 +28,24 @@ from .serializers import TransactionSerializer
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
+
+# =========================
+# JWT 로그아웃
+# =========================
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response({"error": "Refresh token이 필요합니다."}, status=400)
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # 블랙리스트에 등록
+            return Response({"message": "로그아웃 완료"}, status=205)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
