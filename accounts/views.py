@@ -28,6 +28,13 @@ from .serializers import TransactionSerializer
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        token = response.data["access"]
+        refresh_token = response.data.get("refresh")
+        response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite="Lax")
+        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="Lax")
+        return response
 
 # =========================
 # JWT 로그아웃
