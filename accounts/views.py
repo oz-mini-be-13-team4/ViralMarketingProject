@@ -55,6 +55,50 @@ class LogoutView(APIView):
         response.delete_cookie("access_token")
         return response
 
+# =========================
+# 회원 정보 조회 (본인만)
+# =========================
+class UserDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # 로그인한 본인의 정보만 조회 가능
+        return self.request.user
+
+# =========================
+# 회원 정보 수정 (본인만)
+# =========================
+class UserUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        # 일부 필드만 수정 (PATCH)
+        return self.partial_update(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        # 전체 필드 수정 (PUT)
+        return self.update(request, *args, **kwargs)
+
+# =========================
+# 회원 삭제 (본인만)
+# =========================
+class UserDeleteAPIView(generics.DestroyAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.delete()
+        return Response({"message": "Deleted successfully"}, status=status.HTTP_200_OK)
+
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
@@ -201,17 +245,6 @@ class UserActivateView(APIView):
             return Response({"message": "계정이 활성화되었습니다."}, status=status.HTTP_200_OK)
 
         return Response({"message": "유효하지 않은 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# =========================
-# 유저 정보 조회 (로그인 필요)
-# =========================
-class UserDetailAPIView(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = "id"
-
 
 # 계좌 목록/생성
 class AccountListCreateView(ListCreateAPIView):
