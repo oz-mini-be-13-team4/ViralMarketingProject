@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from accounts.views import CustomTokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from accounts.views import UserActivateView, UserSignUpView
 
@@ -24,4 +26,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("signup/", UserSignUpView.as_view(), name="signup"),
     path("activate/<str:uid64>/<str:token>/", UserActivateView.as_view(), name="activate"),
+    path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
