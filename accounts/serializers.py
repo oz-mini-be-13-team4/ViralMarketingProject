@@ -14,7 +14,7 @@ class UserSignUpSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    account_number = serializers.CharField(soure="account.account_number", read_only=True)
+    account_number = serializers.CharField(source="account.account_number", read_only=True)
     user_email = serializers.CharField(source="account.user.email", read_only=True)
 
     class Meta:
