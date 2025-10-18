@@ -32,7 +32,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         response = super().post(request, *args, **kwargs)
         token = response.data["access"]
         refresh_token = response.data.get("refresh")
-        response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite="Lax")
+        response.set_cookie(key="access_token", value=token, httponly=True, secure=False, samesite="Lax")
         response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="Lax")
         return response
 
@@ -40,19 +40,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 # JWT 로그아웃
 # =========================
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
-        try:
-            refresh_token = request.data.get("refresh")
-            if not refresh_token:
-                return Response({"error": "Refresh token이 필요합니다."}, status=400)
+            refresh_token = request.COOKIES.get("refresh_token")
+            if refresh_token is None:
+                return Response({"detail":"refresh token 없음"},status=status.HTTP_400_BAD_REQUEST)
             token = RefreshToken(refresh_token)
-            token.blacklist()  # 블랙리스트에 등록
-            return Response({"message": "로그아웃 완료"}, status=205)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
+            token.blacklist()
 
+            response = Response({"detail":"로그아웃 완료"},status=status.HTTP_200_OK)
+            response.delete_cookie("refresh_token")
+            return response
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
