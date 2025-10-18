@@ -11,11 +11,10 @@ from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from accounts.models import Account, User
-from accounts.serializers import AccountSerializer, UserSerializer, UserSignUpSerializer
+from accounts.serializers import AccountSerializer, UserSerializer, UserSignUpSerializer, CustomTokenObtainPairSerializer
 
 from .filters import TransactionFilter
 from .models import Transaction
@@ -25,15 +24,9 @@ from .serializers import TransactionSerializer
 # =========================
 # JWT 로그인 관련
 # =========================
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # 토큰에 사용자 정보 추가
-        token["email"] = user.email
-        token["nickname"] = user.nickname
-        return token
-
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [AllowAny]
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
@@ -74,10 +67,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         # 실제로 저장될 때 거래 후 잔액을 넣어줌
         serializer.save(amount_after_transaction=account.balance)
 
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-    permission_classes = [AllowAny]
 
 
 # =========================

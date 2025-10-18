@@ -4,6 +4,7 @@ from accounts.models import Transaction, User
 
 from .models import Account
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -88,3 +89,12 @@ class AccountSerializer(serializers.ModelSerializer):
             "user_email",
         ]
         read_only_fields = ["id", "user_email"]
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # 토큰에 사용자 정보 추가
+        token["email"] = user.email
+        token["nickname"] = user.nickname
+        return token
