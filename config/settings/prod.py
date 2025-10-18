@@ -1,5 +1,5 @@
 import os
-from .base import *
+from config.settings.base import * #noqa
 
 from config.settings.base import *  # noqa
 

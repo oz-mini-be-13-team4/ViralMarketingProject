@@ -3,6 +3,9 @@ from django.contrib import admin
 from accounts.views import CustomTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.urls import path, include
+from django.urls import path
+from accounts.views import CustomTokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from accounts.views import UserActivateView, UserSignUpView
 
