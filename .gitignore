@@ -177,4 +177,6 @@ pyrightconfig.json
 # additional
 .idea
 
-# End of https://www.toptal.com/developers/gitignore/api/python
+# End of https://www.toptal.com/developers/gitignore/api/python.venv/
+.venv/
+.venv/
