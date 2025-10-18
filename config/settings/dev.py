@@ -2,6 +2,8 @@ import os
 
 from config.settings.base import *  # noqa
 
+from .base import *
+
 DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "0.0.0.0"]
 
@@ -15,8 +17,4 @@ DATABASES = {
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),  # docker-compose의 서비스명
         "PORT": os.getenv("DB_PORT", "5432"),
     }
-}
-
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
 }
