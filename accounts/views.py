@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db import transaction  # DB 트랜잭션 보장을 위해
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -73,6 +76,68 @@ class TransactionViewSet(viewsets.ModelViewSet):
         account.save()
         # 실제로 저장될 때 거래 후 잔액을 넣어줌
         serializer.save(amount_after_transaction=account.balance)
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        account = instance.account
+
+        # 소유자 확인
+        if account.user != self.request.user:
+            raise PermissionDenied("본인 계좌의 거래만 수정할 수 있습니다.")
+
+        # 계좌 변경 금지
+        if "account" in serializer.validated_data and serializer.validated_data["account"] != account:
+            raise PermissionDenied("거래의 계좌 변경은 허용되지 않습니다.")
+
+        old_amount = instance.transaction_amount
+        old_type = instance.deposit_and_withdrawal_type
+
+        new_amount = serializer.validated_data.get("transaction_amount", old_amount)
+        new_type = serializer.validated_data.get("deposit_and_withdrawal_type", old_type)
+
+        # 효과 계산 함수
+        def effect(t, amt):
+            return amt if t == "DEPOSIT" else -amt
+
+        # 잔액에 적용될 변화량(delta)
+        delta = effect(new_type, new_amount) - effect(old_type, old_amount)
+        if not isinstance(delta, Decimal):
+            delta = Decimal(delta)
+
+        with transaction.atomic():
+            # 잔액이 음수가 되면 차단
+            if delta < Decimal("0") and (account.balance + delta) < Decimal("0"):
+                raise PermissionDenied("수정 결과 잔액이 부족합니다.")
+
+            account.balance += delta
+            account.save()
+
+            # amount_after_transaction 최신화
+            serializer.save(amount_after_transaction=account.balance)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        account = instance.account
+
+        # 소유자 확인
+        if account.user != request.user:
+            raise PermissionDenied("본인 계좌의 거래만 삭제할 수 있습니다.")
+
+        with transaction.atomic():
+            # 거래 영향 롤백
+            if instance.deposit_and_withdrawal_type == "DEPOSIT":
+                # 입금 거래였으므로 삭제 시 잔액에서 빼야 함
+                if account.balance < instance.transaction_amount:
+                    raise PermissionDenied("해당 거래를 삭제하면 잔액이 음수가 되어 삭제 불가.")
+                account.balance -= instance.transaction_amount
+            else:
+                # 출금 거래였으므로 삭제 시 잔액에 다시 더해야 함
+                account.balance += instance.transaction_amount
+
+            account.save()
+            instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
