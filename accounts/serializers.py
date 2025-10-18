@@ -12,9 +12,22 @@ class UserSignUpSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email", "password", "nickname", "name", "phone_number"]
 
+    def create(self, validated_data):
+            password = validated_data.pop("password")
+
+            user = User(
+                email=validated_data.get("email"),
+                nickname=validated_data.get("nickname"),
+                name=validated_data.get("name"),
+                phone_number=validated_data.get("phone_number", ""),
+            )
+            user.set_password(password)
+            user.save()
+            return user
+
 
 class TransactionSerializer(serializers.ModelSerializer):
-    account_number = serializers.CharField(soure="account.account_number", read_only=True)
+    account_number = serializers.CharField(source="account.account_number", read_only=True)
     user_email = serializers.CharField(source="account.user.email", read_only=True)
 
     class Meta:
@@ -43,18 +56,7 @@ class TransactionSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("거래 금액은 0보다 커야 합니다.")
             return value
 
-    def create(self, validated_data):
-        password = validated_data.pop("password")
 
-        user = User(
-            email=validated_data.get("email"),
-            nickname=validated_data.get("nickname"),
-            name=validated_data.get("name"),
-            phone_number=validated_data.get("phone_number", ""),
-        )
-        user.set_password(password)
-        user.save()
-        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
