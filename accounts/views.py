@@ -94,7 +94,7 @@ class UserSignUpView(generics.CreateAPIView):
         token = default_token_generator.make_token(user)
         uid64 = urlsafe_base64_encode(force_bytes(user.pk))
 
-        activation_link = f"http://localhost:8000/accounts/activate/{uid64}/{token}/"
+        activation_link = f"http://localhost:8000/accounts/{uid64}/{token}/"
 
         send_mail(
             subject="[ViralMarketingProject] 회원가입 인증 메일",
