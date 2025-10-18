@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from accounts.views import CustomTokenObtainPairView, UserActivateView, UserSignUpView
+from accounts.views import CustomTokenObtainPairView, UserActivateView, UserSignUpView, LogoutView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -10,8 +10,9 @@ urlpatterns = [
     path("activate/<str:uid64>/<str:token>/", UserActivateView.as_view(), name="activate"),
     path("login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("accounts/<str:uid64>/<str:token>/", UserActivateView.as_view(), name="activate"),
+    path("accounts/<str:uid64>/<str:token>/", UserActivateView.as_view()),
     path("api/", include("accounts.urls")),
     # 테스트때문에 넣은거
     path("api-auth/", include("rest_framework.urls")),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
