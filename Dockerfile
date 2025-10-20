@@ -33,3 +33,5 @@ RUN chmod +x /app/scripts/run.sh
 
 # 포트 설정
 EXPOSE 8000
+
+CMD ["/app/scripts/run.sh"]
