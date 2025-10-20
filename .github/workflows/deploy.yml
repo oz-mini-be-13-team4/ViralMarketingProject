@@ -22,17 +22,23 @@ jobs:
           mkdir -p ~/.ssh
           echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
-          # SSH 접속 후 EC2에서 env 파일 생성
-          ssh -tt -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -i ~/.ssh/id_rsa $USER@$HOST << EOF
+
+          # EOF에 따옴표 제거 (변수 확장 허용)
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $USER@$HOST << EOF
             mkdir -p ~/envs
-            cat <<EOT > ~/envs/.env.prod
+
+            # env 파일 생성 (heredoc 중첩 방지)
+            cat > ~/envs/.env.prod << 'ENVEOF'
             ${{ secrets.ENV_PROD }}
-            EOT
-          
+            ENVEOF
+            
             docker pull $DOCKER_USERNAME/django-app:latest
             docker stop django_container || true
             docker rm django_container || true
-            docker run -d --name django_container -p 8000:8000 --env-file ~/envs/.env.prod $DOCKER_USERNAME/django-app:latest
+            
+            docker run -d --name django_container -p 8000:8000 \
+            --env-file ~/envs/.env.prod \
+            $DOCKER_USERNAME/django-app:latest
+            
             docker ps
-          EOF
+            EOF
