@@ -33,7 +33,3 @@ RUN chmod +x /app/scripts/run.sh
 
 # 포트 설정
 EXPOSE 8000
-
-
-# 컨테이너 시작 시 run.sh 실행
-CMD ["/app/scripts/run.sh"]
