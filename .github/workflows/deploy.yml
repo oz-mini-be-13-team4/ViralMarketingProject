@@ -31,6 +31,6 @@ jobs:
             docker pull $DOCKER_USERNAME/django-app:latest
             docker stop django_container || true
             docker rm django_container || true
-            docker run -d --name django_container -p 8000:8000 --env-file envs/.env.prod $DOCKER_USERNAME/django-app:latest
+            docker run -d --name django_container -p 8000:8000 --env-file ~/envs/.env.prod $DOCKER_USERNAME/django-app:latest
             docker ps
           EOF
