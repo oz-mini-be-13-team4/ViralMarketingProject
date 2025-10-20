@@ -14,11 +14,16 @@ from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from accounts.models import Account, User
-from accounts.serializers import AccountSerializer, UserSerializer, UserSignUpSerializer, CustomTokenObtainPairSerializer
+from accounts.serializers import (
+    AccountSerializer,
+    CustomTokenObtainPairSerializer,
+    UserSerializer,
+    UserSignUpSerializer,
+)
 
 from .filters import TransactionFilter
 from .models import Transaction
@@ -31,6 +36,7 @@ from .serializers import TransactionSerializer
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         token = response.data["access"]
@@ -38,6 +44,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         response.set_cookie(key="access_token", value=token, httponly=True, secure=False, samesite="Lax")
         response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="Lax")
         return response
+
 
 # =========================
 # JWT 로그아웃
@@ -55,6 +62,7 @@ class LogoutView(APIView):
         response.delete_cookie("access_token")
         return response
 
+
 # =========================
 # 회원 정보 조회 (본인만)
 # =========================
@@ -65,6 +73,7 @@ class UserDetailAPIView(generics.RetrieveAPIView):
     def get_object(self):
         # 로그인한 본인의 정보만 조회 가능
         return self.request.user
+
 
 # =========================
 # 회원 정보 수정 (본인만)
@@ -84,6 +93,7 @@ class UserUpdateAPIView(generics.UpdateAPIView):
         # 전체 필드 수정 (PUT)
         return self.update(request, *args, **kwargs)
 
+
 # =========================
 # 회원 삭제 (본인만)
 # =========================
@@ -98,6 +108,7 @@ class UserDeleteAPIView(generics.DestroyAPIView):
         user = self.get_object()
         user.delete()
         return Response({"message": "Deleted successfully"}, status=status.HTTP_200_OK)
+
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
@@ -201,7 +212,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
 # =========================
 # 회원가입 (이메일 인증)
 # =========================
@@ -245,6 +255,7 @@ class UserActivateView(APIView):
             return Response({"message": "계정이 활성화되었습니다."}, status=status.HTTP_200_OK)
 
         return Response({"message": "유효하지 않은 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # 계좌 목록/생성
 class AccountListCreateView(ListCreateAPIView):
