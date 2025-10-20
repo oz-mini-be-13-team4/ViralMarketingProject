@@ -26,7 +26,7 @@ jobs:
             # GitHub Secret에 저장해둔 ENV_PROD 내용을 envs/.env.prod 파일로 생성
             printf "%s\n" "${{ secrets.ENV_PROD }}" > envs/.env.prod
 
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $USER@$HOST << EOF
+          ssh -tt -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $USER@$HOST << EOF
             docker pull $DOCKER_USERNAME/django-app:latest
             docker stop django_container || true
             docker rm django_container || true
