@@ -40,7 +40,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-ansi
+        run: poetry install --no-root --no-interaction --no-ansi
 
       - name: Run ruff (Linting)
         run: poetry run ruff check .
