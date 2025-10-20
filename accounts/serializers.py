@@ -1,10 +1,10 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from accounts.models import Transaction, User
 
 from .models import Account
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -14,17 +14,17 @@ class UserSignUpSerializer(serializers.ModelSerializer):
         fields = ["email", "password", "nickname", "name", "phone_number"]
 
     def create(self, validated_data):
-            password = validated_data.pop("password")
+        password = validated_data.pop("password")
 
-            user = User(
-                email=validated_data.get("email"),
-                nickname=validated_data.get("nickname"),
-                name=validated_data.get("name"),
-                phone_number=validated_data.get("phone_number", ""),
-            )
-            user.set_password(password)
-            user.save()
-            return user
+        user = User(
+            email=validated_data.get("email"),
+            nickname=validated_data.get("nickname"),
+            name=validated_data.get("name"),
+            phone_number=validated_data.get("phone_number", ""),
+        )
+        user.set_password(password)
+        user.save()
+        return user
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -58,8 +58,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             return value
 
 
-
-
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
 
@@ -89,6 +87,7 @@ class AccountSerializer(serializers.ModelSerializer):
             "user_email",
         ]
         read_only_fields = ["id", "user_email"]
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod

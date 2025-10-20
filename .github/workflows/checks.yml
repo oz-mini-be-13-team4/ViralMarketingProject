@@ -32,32 +32,32 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
-      - name: Install uv
+      - name: Install Poetry
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
+          curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Install Packages & Libraries
-        run: uv sync --dev-packages
+      - name: Install dependencies
+        run: poetry install --no-root --no-interaction --no-ansi
 
       - name: Run ruff (Linting)
-        run: uv run ruff check .
+        run: poetry run ruff check .
 
       - name: Wait for Postgres
         run: |
           until pg_isready -h localhost -p 5432; do
+            echo "Waiting for Postgres..."
             sleep 1
           done
 
       - name: Run Django Migration
         env:
           DATABASE_URL: postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.DB_NAME }}
-        run: uv run python manage.py migrate
+        run: poetry run python manage.py migrate
 
       - name: Run Django Tests
         env:
           DATABASE_URL: postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.DB_NAME }}
-        run: uv run python manage.py test
+        run: poetry run python manage.py test
