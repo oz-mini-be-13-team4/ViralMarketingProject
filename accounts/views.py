@@ -14,11 +14,11 @@ from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import Account, User
-from accounts.serializers import AccountSerializer, UserSerializer, UserSignUpSerializer
+from accounts.serializers import AccountSerializer, UserSerializer, UserSignUpSerializer, CustomTokenObtainPairSerializer
 
 from .filters import TransactionFilter
 from .models import Transaction
@@ -28,15 +28,76 @@ from .serializers import TransactionSerializer
 # =========================
 # JWT 로그인 관련
 # =========================
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # 토큰에 사용자 정보 추가
-        token["email"] = user.email
-        token["nickname"] = user.nickname
-        return token
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        token = response.data["access"]
+        refresh_token = response.data.get("refresh")
+        response.set_cookie(key="access_token", value=token, httponly=True, secure=False, samesite="Lax")
+        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="Lax")
+        return response
 
+# =========================
+# JWT 로그아웃
+# =========================
+class LogoutView(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+        if refresh_token is None:
+            return Response({"detail": "refresh token 없음"}, status=status.HTTP_400_BAD_REQUEST)
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        response = Response({"detail": "로그아웃 완료"}, status=status.HTTP_200_OK)
+        response.delete_cookie("refresh_token")
+        response.delete_cookie("access_token")
+        return response
+
+# =========================
+# 회원 정보 조회 (본인만)
+# =========================
+class UserDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # 로그인한 본인의 정보만 조회 가능
+        return self.request.user
+
+# =========================
+# 회원 정보 수정 (본인만)
+# =========================
+class UserUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        # 일부 필드만 수정 (PATCH)
+        return self.partial_update(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        # 전체 필드 수정 (PUT)
+        return self.update(request, *args, **kwargs)
+
+# =========================
+# 회원 삭제 (본인만)
+# =========================
+class UserDeleteAPIView(generics.DestroyAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.delete()
+        return Response({"message": "Deleted successfully"}, status=status.HTTP_200_OK)
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
@@ -140,10 +201,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-    permission_classes = [AllowAny]
-
 
 # =========================
 # 회원가입 (이메일 인증)
@@ -188,17 +245,6 @@ class UserActivateView(APIView):
             return Response({"message": "계정이 활성화되었습니다."}, status=status.HTTP_200_OK)
 
         return Response({"message": "유효하지 않은 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# =========================
-# 유저 정보 조회 (로그인 필요)
-# =========================
-class UserDetailAPIView(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = "id"
-
 
 # 계좌 목록/생성
 class AccountListCreateView(ListCreateAPIView):

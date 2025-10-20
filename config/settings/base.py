@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "accounts",
     "rest_framework",
     "django_filters",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 AUTH_USER_MODEL = "accounts.User"
 
