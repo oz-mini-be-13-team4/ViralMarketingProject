@@ -1,9 +1,14 @@
 import os
 
+from dotenv import load_dotenv
+
 from config.settings.base import *  # noqa  # noqa
+from config.settings.base import BASE_DIR
 
 DEBUG = False
 ALLOWED_HOSTS = ["*"]
+
+load_dotenv(BASE_DIR / "envs/.env.prod")
 
 DATABASES = {
     "default": {

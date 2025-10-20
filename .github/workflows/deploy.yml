@@ -22,6 +22,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          mkdir -p envs
+            # GitHub Secret에 저장해둔 ENV_PROD 내용을 envs/.env.prod 파일로 생성
+            printf "%s\n" "${{ secrets.ENV_PROD }}" > envs/.env.prod
 
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $USER@$HOST << EOF
             docker pull $DOCKER_USERNAME/django-app:latest
