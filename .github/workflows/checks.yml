@@ -32,7 +32,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'
+          python-version: '3.12'
 
       - name: Install uv
         run: |
@@ -42,6 +42,9 @@ jobs:
 
       - name: Install Packages & Libraries
         run: uv sync --dev
+
+      - name: Install ruff (if not in dev dependencies)
+        run: uv pip install ruff
 
       - name: Run ruff (Linting)
         run: uv run ruff check .
