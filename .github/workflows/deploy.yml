@@ -24,10 +24,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           
           # SSH 접속 후 EC2에서 env 파일 생성
-          ssh -tt -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -i ~/.ssh/id_rsa $USER@$HOST << EOF
+          ssh -tt -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -i ~/.ssh/id_rsa $ubuntu@$HOST << EOF
             mkdir -p ~/envs
             printf "%s\n" "${{ secrets.ENV_PROD }}" > ~/envs/.env.prod
-
+          
             docker pull $DOCKER_USERNAME/django-app:latest
             docker stop django_container || true
             docker rm django_container || true
