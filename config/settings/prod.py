@@ -1,14 +1,9 @@
 import os
 
-from dotenv import load_dotenv
-
 from config.settings.base import *  # noqa  # noqa
-from config.settings.base import BASE_DIR
 
 DEBUG = False
 ALLOWED_HOSTS = ["*"]
-
-load_dotenv(BASE_DIR / "envs/.env.prod")
 
 DATABASES = {
     "default": {
@@ -16,7 +11,7 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME", "viral_db"),
         "USER": os.getenv("DB_USER", "postgres"),
         "PASSWORD": os.getenv("DB_PASSWORD", "password1234"),
-        "HOST": os.getenv("DB_HOST", "127.0.0.1"),  # docker-compose의 서비스명
+        "HOST": os.getenv("DB_HOST", "db"),  # docker-compose의 서비스명
         "PORT": os.getenv("DB_PORT", "5432"),
     }
 }

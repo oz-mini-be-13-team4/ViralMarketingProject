@@ -7,11 +7,6 @@ services:
     restart: always
     env_file:
       - ./envs/.env.prod
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_ROOT_USER: ${DB_USER}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -32,7 +27,7 @@ services:
     env_file:
       - ./envs/.env.prod
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.dev
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
     ports:
       - "8000:8000"
     depends_on:
