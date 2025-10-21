@@ -40,5 +40,6 @@ jobs:
             --env-file ~/envs/.env.prod \
             $DOCKER_USERNAME/django-app:latest
             
+            docker image prune -af
             docker ps
           EOF
