@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -26,4 +28,4 @@ urlpatterns = [
     path("profile/", UserDetailAPIView.as_view(), name="user-detail"),
     path("profile/update/", UserUpdateAPIView.as_view(), name="user-update"),
     path("profile/delete/", UserDeleteAPIView.as_view(), name="user-delete"),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
