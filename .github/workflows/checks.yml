@@ -24,7 +24,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,7 +37,6 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Install dependencies
         run: poetry install --no-root --no-interaction --no-ansi
 
@@ -51,7 +49,6 @@ jobs:
             echo "Waiting for Postgres..."
             sleep 1
           done
-
       - name: Run Django Migration
         env:
           DATABASE_URL: postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.DB_NAME }}
