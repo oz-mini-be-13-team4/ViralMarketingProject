@@ -1,7 +1,10 @@
+import re
+
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.core.exceptions import ImproperlyConfigured
+from django.urls import include, path, re_path
+from django.views.static import serve
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from accounts.views import (
@@ -13,6 +16,15 @@ from accounts.views import (
     UserSignUpView,
     UserUpdateAPIView,
 )
+
+
+def static(prefix, view=serve, **kwargs):
+    if not prefix:
+        raise ImproperlyConfigured("Empty static prefix not permitted")
+    return [
+        re_path(r"^%s(?P<path>.*)$" % re.escape(prefix.lstrip("/")), view, kwargs=kwargs),
+    ]
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
