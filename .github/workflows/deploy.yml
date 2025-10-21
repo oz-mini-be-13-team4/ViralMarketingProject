@@ -27,10 +27,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $USER@$HOST << EOF
             mkdir -p ~/envs
 
-            # env 파일 생성 (heredoc 중첩 방지)
-            cat > ~/envs/.env.prod << 'ENVEOF'
-            ${{ secrets.ENV_PROD }}
-            ENVEOF
+            # env 파일 생성
+            echo "${{secrets.ENV_PROD}}" > ~/envs/.env.prod
             
             docker pull $DOCKER_USERNAME/django-app:latest
             docker stop django_container || true
