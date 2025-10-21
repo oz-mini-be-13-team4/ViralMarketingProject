@@ -41,4 +41,4 @@ jobs:
             $DOCKER_USERNAME/django-app:latest
             
             docker ps
-            EOF
+          EOF
