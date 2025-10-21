@@ -6,7 +6,7 @@ services:
     image: postgres:17
     restart: always
     env_file:
-      - .env
+      - ./envs/.env.prod
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_ROOT_USER: ${DB_USER}
@@ -30,7 +30,7 @@ services:
     build: .
     command: sh /app/scripts/run.sh
     env_file:
-      - .env
+      - ./envs/.env.prod
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.dev
     ports:
